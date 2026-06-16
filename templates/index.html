@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Face Mask & Emotion Detector</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f0f5; --surface: #ffffff; --border: #e0e0ee;
+    --text: #1a1a2e; --text2: #555; --text3: #888;
+    --purple: #534AB7; --purple2: #3C3489;
+    --green-bg: #e6f4d7; --green-text: #3B6D11;
+    --red-bg: #fde8e8; --red-text: #A32D2D;
+    --purple-bg: #EEEDFE; --purple-text: #3C3489;
+    --metric-bg: #fafafe;
+  }
+  [data-theme="dark"] {
+    --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+    --text: #f0f0ff; --text2: #aaa; --text3: #666;
+    --metric-bg: #12122a;
+    --green-bg: #1a3010; --green-text: #7dc95e;
+    --red-bg: #2d1010; --red-text: #f08080;
+    --purple-bg: #1e1a40; --purple-text: #a89ff0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+  /* NAV */
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 2rem; display: flex; align-items: center;
+    justify-content: space-between; height: 58px; position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-size: 16px; font-weight: 600; color: var(--purple); display: flex; align-items: center; gap: 8px; }
+  .nav-brand svg { width: 22px; height: 22px; stroke: var(--purple); }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-link {
+    padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    color: var(--text2); text-decoration: none; border: none; background: none; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-link:hover, .nav-link.active { background: var(--purple-bg); color: var(--purple); }
+  .theme-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--metric-bg); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; color: var(--text2); margin-left: 8px;
+  }
+  .theme-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* LAYOUT */
+  .app { max-width: 700px; margin: 0 auto; padding: 2rem 1rem; }
+  .hero { text-align: center; margin-bottom: 2rem; }
+  .hero h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .hero p { font-size: 14px; color: var(--text3); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; background: var(--surface); border-radius: 12px; padding: 6px; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 9px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text2); background: none; transition: all 0.2s; }
+  .tab.active { background: var(--purple); color: #fff; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARD */
+  .card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; }
+
+  /* UPLOAD */
+  .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--metric-bg); }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--purple); background: var(--purple-bg); }
+  .drop-zone svg { width: 40px; height: 40px; stroke: var(--text3); margin-bottom: 12px; }
+  .drop-zone p { font-size: 15px; color: var(--text2); margin-bottom: 4px; }
+  .drop-zone span { font-size: 13px; color: var(--text3); }
+  .preview-wrap { position: relative; margin-top: 1rem; }
+  .preview-wrap img { width: 100%; border-radius: 10px; max-height: 280px; object-fit: cover; display: block; }
+  .remove-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--purple); color: #fff; width: 100%; margin-top: 1rem; }
+  .btn-primary:hover { background: var(--purple2); }
+  .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-outline { background: none; border: 1px solid var(--border); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* CAMERA */
+  .camera-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #111; min-height: 300px; display: flex; align-items: center; justify-content: center; }
+  .camera-wrap img { width: 100%; display: block; }
+  .camera-placeholder { text-align: center; color: #666; padding: 3rem; }
+  .camera-placeholder svg { width: 48px; height: 48px; stroke: #555; margin-bottom: 12px; display: block; margin: 0 auto 12px; }
+  .camera-btns { display: flex; gap: 8px; margin-top: 1rem; }
+  .camera-btns .btn { flex: 1; margin-top: 0; }
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; margin-bottom: 10px; letter-spacing: 0.05em; }
+  .live-dot { width: 7px; height: 7px; background: #fff; border-radius: 50%; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* RESULTS */
+  .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .metric { background: var(--metric-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .metric .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .metric .value { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .bar-bg { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+  .section-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+  .result-img { width: 100%; border-radius: 10px; display: block; }
+  .face-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .face-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .face-num { width: 30px; height: 30px; border-radius: 50%; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--purple); flex-shrink: 0; margin-top: 2px; }
+  .face-info { flex: 1; }
+  .face-info p { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.8; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; }
+  .badge-green { background: var(--green-bg); color: var(--green-text); }
+  .badge-red { background: var(--red-bg); color: var(--red-text); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple-text); }
+  .chart-wrap { margin-top: 1rem; }
+  .chart-row { margin-bottom: 12px; }
+  .chart-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+  .chart-bar-bg { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .chart-bar { height: 100%; border-radius: 99px; transition: width 1s ease; }
+  .save-btn-wrap { margin-top: 1rem; display: flex; justify-content: flex-end; }
+
+  /* HISTORY */
+  .history-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .history-item:last-child { border-bottom: none; }
+  .history-thumb { width: 52px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; border: 1px solid var(--border); }
+  .history-info { flex: 1; }
+  .history-info p { font-size: 13px; color: var(--text); margin: 0; font-weight: 500; }
+  .history-info span { font-size: 11px; color: var(--text3); }
+  .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .empty-state { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
+
+  .no-face { text-align: center; padding: 1.5rem; color: #e74c3c; font-size: 14px; }
+  .hidden { display: none; }
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .row { display: flex; gap: 8px; align-items: center; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    FaceSense AI
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link active">Detector</a>
+    <a href="/about" class="nav-link">About</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle dark mode">🌙</button>
+  </div>
+</nav>
+
+<div class="app">
+  <div class="hero">
+    <h1>Face Mask & Emotion Detector</h1>
+    <p>Real-time AI detection powered by CNN & MobileNetV2</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('upload')">Upload Image</button>
+    <button class="tab" onclick="switchTab('camera')">Live Camera</button>
+    <button class="tab" onclick="switchTab('history')">History</button>
+  </div>
+
+  <!-- UPLOAD TAB -->
+  <div id="uploadPanel" class="panel active">
+    <div class="card">
+      <form id="uploadForm" method="post" action="/predict" enctype="multipart/form-data">
+        <div class="drop-zone" id="dropZone">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p>Drag & drop an image here</p>
+          <span>or click to browse — JPG, PNG supported</span>
+          <input type="file" name="file" id="fileInput" accept="image/*" style="display:none" required>
+        </div>
+        <div id="previewWrap" class="preview-wrap hidden">
+          <img id="previewImg" alt="Preview">
+          <button type="button" class="remove-btn" id="removeBtn">&#x2715;</button>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+          <div class="spinner" id="spinner"></div>
+          <span id="btnText">Select an image first</span>
+        </button>
+      </form>
+    </div>
+
+    {% if result_image %}
+    <div class="fade-in">
+      {% if num_faces == 0 %}
+      <div class="card"><p class="no-face">No face detected. Try a clearer, well-lit photo.</p></div>
+      {% else %}
+
+      {% set mask_count = results|selectattr('mask','equalto','With Mask')|list|length %}
+      {% set avg_mask_conf = (results|map(attribute='mask_conf_val')|list|sum / results|length)|round(1) %}
+      {% set avg_emo_conf = (results|map(attribute='emotion_conf_val')|list|sum / results|length)|round(1) %}
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="label">Faces</div>
+          <div class="value">{{ num_faces }}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:{{ [num_faces*25,100]|min }}%; background:var(--purple);"></div></div>
+        </div>
+        <div class="metric">
+          <div class="label">With Mask</div>
+          <div class="value">{{ mask_count }}/{{ num_faces }}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:{{ (mask_count/num_faces*100)|int }}%; background:#639922;"></div></div>
+        </div>
+        <div class="metric">
+          <div class="label">Avg Confidence</div>
+          <div class="value">{{ avg_mask_conf }}%</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:{{ avg_mask_conf }}%; background:#e67e22;"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Annotated Result</p>
+        <img class="result-img" id="resultImg" src="{{ url_for('static', filename='results/' + result_image) }}" alt="Result">
+        <div class="save-btn-wrap">
+          <button class="btn btn-outline btn-sm" onclick="saveImage()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save Result
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Per-Face Breakdown</p>
+        {% for r in results %}
+        <div class="face-row">
+          <div class="face-num">{{ loop.index }}</div>
+          <div class="face-info">
+            <p>Mask: <span class="badge {{ 'badge-green' if r.mask == 'With Mask' else 'badge-red' }}">{{ r.mask }}</span></p>
+            <p>Emotion: <span class="badge badge-purple">{{ r.emotion }}</span></p>
+            <div class="chart-wrap">
+              <div class="chart-row">
+                <div class="chart-label"><span>Mask confidence</span><span>{{ r.mask_conf }}</span></div>
+                <div class="chart-bar-bg"><div class="chart-bar" style="width:{{ r.mask_conf_val }}%; background:{{ '#639922' if r.mask == 'With Mask' else '#A32D2D' }};"></div></div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label"><span>Emotion confidence</span><span>{{ r.emotion_conf }}</span></div>
+                <div class="chart-bar-bg"><div class="chart-bar" style="width:{{ r.emotion_conf_val }}%; background:#534AB7;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="card"><p class="no-face">{{ error }}</p></div>
+    {% endif %}
+  </div>
+
+  <!-- CAMERA TAB -->
+  <div id="cameraPanel" class="panel">
+    <div class="card">
+      <div class="camera-wrap" id="cameraWrap">
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <p>Camera is off</p>
+        </div>
+        <img id="cameraFeed" style="display:none; width:100%;" alt="Live feed">
+      </div>
+      <div class="camera-btns">
+        <button class="btn btn-primary" id="startBtn" onclick="startCamera()">Start Camera</button>
+        <button class="btn btn-danger hidden" id="stopBtn" onclick="stopCamera()">Stop Camera</button>
+      </div>
+    </div>
+    <div class="card hidden" id="liveInfo">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <p style="font-size:13px; color:var(--text2);">Green box = mask on &nbsp;|&nbsp; Red box = no mask &nbsp;|&nbsp; Emotion shown above each face</p>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="historyPanel" class="panel">
+    <div class="card">
+      <div class="history-header">
+        <p class="section-label" style="margin:0">Recent Detections</p>
+        {% if history %}
+        <button class="btn btn-outline btn-sm" onclick="clearHistory()">Clear All</button>
+        {% endif %}
+      </div>
+      {% if history %}
+        {% for h in history %}
+        <div class="history-item">
+          <img class="history-thumb" src="{{ url_for('static', filename='results/' + h.filename) }}" alt="result">
+          <div class="history-info">
+            <p>{{ h.faces }} face{{ 's' if h.faces != 1 }} — {{ h.mask_count }} with mask — {{ h.emotion }}</p>
+            <span>{{ h.time }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">No detections yet. Upload an image to get started.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Theme
+  const html = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  html.setAttribute('data-theme', savedTheme);
+  themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+  function toggleTheme() {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+  }
+
+  // Tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['upload','camera','history'][i] === tab);
+    });
+    ['uploadPanel','cameraPanel','historyPanel'].forEach(id => {
+      document.getElementById(id).classList.toggle('active', id.startsWith(tab));
+    });
+    if (tab !== 'camera') stopCamera();
+  }
+
+  // Upload
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const previewWrap = document.getElementById('previewWrap');
+  const previewImg = document.getElementById('previewImg');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('spinner');
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      dropZone.style.display = 'none';
+      previewWrap.classList.remove('hidden');
+      submitBtn.disabled = false;
+      btnText.textContent = 'Analyze Image';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('removeBtn').addEventListener('click', () => {
+    fileInput.value = '';
+    previewImg.src = '';
+    previewWrap.classList.add('hidden');
+    dropZone.style.display = 'block';
+    submitBtn.disabled = true;
+    btnText.textContent = 'Select an image first';
+  });
+
+  document.getElementById('uploadForm').addEventListener('submit', () => {
+    spinner.style.display = 'block';
+    btnText.textContent = 'Analyzing...';
+    submitBtn.disabled = true;
+  });
+
+  // Save result image
+  function saveImage() {
+    const img = document.getElementById('resultImg');
+    if (!img) return;
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = 'facesense_result.jpg';
+    a.click();
+  }
+
+  // Camera
+  function startCamera() {
+    document.getElementById('cameraFeed').src = '/video_feed';
+    document.getElementById('cameraFeed').style.display = 'block';
+    document.getElementById('cameraPlaceholder').style.display = 'none';
+    document.getElementById('startBtn').classList.add('hidden');
+    document.getElementById('stopBtn').classList.remove('hidden');
+    document.getElementById('liveInfo').classList.remove('hidden');
+  }
+
+  function stopCamera() {
+    const feed = document.getElementById('cameraFeed');
+    if (!feed) return;
+    feed.src = '';
+    feed.style.display = 'none';
+    document.getElementById('cameraPlaceholder').style.display = 'flex';
+    document.getElementById('startBtn').classList.remove('hidden');
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('liveInfo').classList.add('hidden');
+    fetch('/stop_camera', { method: 'POST' });
+  }
+
+  // Clear history
+  function clearHistory() {
+    fetch('/clear_history', { method: 'POST' }).then(() => location.reload());
+  }
+</script>
+</body>
+</html>

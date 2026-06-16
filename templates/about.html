@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — FaceSense AI</title>
+<style>
+  :root { --bg:#f0f0f5; --surface:#fff; --border:#e0e0ee; --text:#1a1a2e; --text2:#555; --text3:#888; --purple:#534AB7; --purple-bg:#EEEDFE; --purple-text:#3C3489; --metric-bg:#fafafe; }
+  [data-theme="dark"] { --bg:#0f0f1a; --surface:#1a1a2e; --border:#2a2a4a; --text:#f0f0ff; --text2:#aaa; --text3:#666; --metric-bg:#12122a; --purple-bg:#1e1a40; --purple-text:#a89ff0; }
+  * { margin:0; padding:0; box-sizing:border-box; transition:background 0.3s,color 0.3s,border-color 0.3s; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
+  nav { background:var(--surface); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:58px; position:sticky; top:0; z-index:100; }
+  .nav-brand { font-size:16px; font-weight:600; color:var(--purple); display:flex; align-items:center; gap:8px; }
+  .nav-brand svg { width:22px; height:22px; stroke:var(--purple); }
+  .nav-links { display:flex; align-items:center; gap:6px; }
+  .nav-link { padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500; color:var(--text2); text-decoration:none; border:none; background:none; cursor:pointer; }
+  .nav-link:hover,.nav-link.active { background:var(--purple-bg); color:var(--purple); }
+  .theme-btn { width:36px; height:36px; border-radius:50%; border:1px solid var(--border); background:var(--metric-bg); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; margin-left:8px; }
+  .app { max-width:700px; margin:0 auto; padding:2rem 1rem; }
+
+  .hero-banner { background:var(--surface); border-radius:20px; border:1px solid var(--border); padding:2.5rem 2rem; margin-bottom:1rem; text-align:center; }
+  .hero-banner h1 { font-size:28px; font-weight:700; color:var(--text); margin-bottom:10px; }
+  .hero-banner p { font-size:14px; color:var(--text2); line-height:1.8; max-width:520px; margin:0 auto; }
+
+  .creator-card { background:var(--surface); border-radius:20px; border:1px solid var(--border); padding:1.5rem; margin-bottom:1rem; display:flex; align-items:center; gap:1.5rem; }
+  .avatar { width:72px; height:72px; border-radius:50%; background:var(--purple-bg); display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; color:var(--purple); flex-shrink:0; border:2px solid var(--purple); }
+  .creator-info h2 { font-size:18px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .creator-info .role { font-size:12px; color:var(--purple); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+  .creator-info p { font-size:13px; color:var(--text2); line-height:1.8; }
+
+  .card { background:var(--surface); border-radius:16px; border:1px solid var(--border); padding:1.5rem; margin-bottom:1rem; }
+  .card h2 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:12px; }
+  .card p { font-size:13px; color:var(--text2); line-height:1.8; }
+  .card p + p { margin-top:10px; }
+
+  .story-quote { border-left:3px solid var(--purple); padding:12px 16px; margin:14px 0; background:var(--metric-bg); border-radius:0 10px 10px 0; font-size:13px; color:var(--text2); font-style:italic; line-height:1.8; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+  .stat { background:var(--metric-bg); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+  .stat .num { font-size:22px; font-weight:700; color:var(--purple); }
+  .stat .lbl { font-size:11px; color:var(--text3); margin-top:4px; }
+
+  .pipeline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .step { background:var(--metric-bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--text2); }
+  .arrow { color:var(--text3); font-size:14px; }
+  .tag { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:500; background:var(--purple-bg); color:var(--purple-text); margin:3px 3px 3px 0; }
+
+  .section-label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px; }
+  .feature-row { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .feature-row:last-child { border-bottom:none; }
+  .feature-icon { width:34px; height:34px; border-radius:8px; background:var(--purple-bg); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .feature-info p { font-size:13px; font-weight:600; color:var(--text); margin:0 0 2px; }
+  .feature-info span { font-size:12px; color:var(--text3); }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    FaceSense AI
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Detector</a>
+    <a href="/about" class="nav-link active">About</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
+</nav>
+
+<div class="app">
+
+  <div class="hero-banner">
+    <h1>About FaceSense AI</h1>
+    <p>A real-time face mask and emotion detection system built with deep learning — designed to make AI accessible, meaningful, and impactful in everyday life.</p>
+  </div>
+
+  <div class="creator-card">
+    <div class="avatar">SS</div>
+    <div class="creator-info">
+      <h2>Sheema Saud</h2>
+      <div class="role">Creator & Developer</div>
+      <p>Final year Computer Science student with a passion for deep learning and building AI systems that solve real-world problems. FaceSense AI is her capstone project — from idea to deployment, built entirely by her.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Story Behind FaceSense AI</h2>
+    <p>The idea for FaceSense AI came from Sheema's observation during the COVID-19 pandemic — in crowded public spaces, manually monitoring mask compliance was slow, inconsistent, and unreliable. She asked herself a simple question: what if a camera could do this automatically, and tell you not just whether someone is wearing a mask, but also how they are feeling?</p>
+    <div class="story-quote">
+      "I wanted to build something that wasn't just a class exercise — something that could genuinely be used in hospitals, schools, or public spaces to make people safer and more aware."
+    </div>
+    <p>That vision became FaceSense AI. Starting from raw datasets and building two separate deep learning models from scratch, Sheema designed the entire pipeline — from data preprocessing and model training to a polished, real-time web application with live camera support.</p>
+    <p>What makes this project stand out is not just the technology, but the thinking behind it — combining two distinct AI tasks (mask detection and emotion recognition) into a single, seamless experience that works in real time on any device with a camera.</p>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="num">7,553</div><div class="lbl">Mask training images</div></div>
+    <div class="stat"><div class="num">35,887</div><div class="lbl">Emotion training images</div></div>
+    <div class="stat"><div class="num">2</div><div class="lbl">Deep learning models</div></div>
+    <div class="stat"><div class="num">7</div><div class="lbl">Emotion classes</div></div>
+  </div>
+
+  <div class="card">
+    <p class="section-label">What It Can Do</p>
+    <div class="feature-row">
+      <div class="feature-icon">🎭</div>
+      <div class="feature-info">
+        <p>Real-time emotion recognition</p>
+        <span>Detects 7 emotions — Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise</span>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">😷</div>
+      <div class="feature-info">
+        <p>Mask compliance detection</p>
+        <span>Identifies whether each person in a photo or live feed is wearing a mask</span>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">📷</div>
+      <div class="feature-info">
+        <p>Live camera mode</p>
+        <span>Streams webcam feed with real-time face detection and annotation</span>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">📊</div>
+      <div class="feature-info">
+        <p>Confidence score charts</p>
+        <span>Shows model confidence for each prediction with visual bar charts</span>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🕓</div>
+      <div class="feature-info">
+        <p>Detection history</p>
+        <span>Logs the last 10 detections with thumbnails, timestamps, and summaries</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How It Works</h2>
+    <div class="pipeline">
+      <div class="step">Image / Webcam</div><div class="arrow">→</div>
+      <div class="step">Haar Cascade face detection</div><div class="arrow">→</div>
+      <div class="step">Face crop</div><div class="arrow">→</div>
+      <div class="step">MobileNetV2 (mask)</div><div class="arrow">→</div>
+      <div class="step">CNN (emotion)</div><div class="arrow">→</div>
+      <div class="step">Annotated result</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tech Stack</h2>
+    <span class="tag">Python</span>
+    <span class="tag">TensorFlow / Keras</span>
+    <span class="tag">OpenCV</span>
+    <span class="tag">Flask</span>
+    <span class="tag">MobileNetV2</span>
+    <span class="tag">CNN</span>
+    <span class="tag">FER2013</span>
+    <span class="tag">Face Mask Dataset</span>
+    <span class="tag">Haar Cascade</span>
+    <span class="tag">HTML / CSS / JS</span>
+  </div>
+
+</div>
+
+<script>
+  const html = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  const saved = localStorage.getItem('theme') || 'light';
+  html.setAttribute('data-theme', saved);
+  themeBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+  function toggleTheme() {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+  }
+</script>
+</body>
+</html>
