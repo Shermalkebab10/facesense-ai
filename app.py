@@ -147,7 +147,9 @@ def clear_history():
 @app.route('/predict', methods=['POST'])
 def predict():
     file = request.files['file']
-    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    import re
+    clean_name = re.sub(r'[^a-zA-Z0-9._-]', '_', file.filename)
+    filepath = os.path.join(UPLOAD_FOLDER, clean_name)
     file.save(filepath)
 
     img = cv2.imread(filepath)
