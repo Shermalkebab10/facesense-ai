@@ -12,6 +12,8 @@ app.secret_key = 'face_mask_emotion_secret_key'
 
 UPLOAD_FOLDER = 'static/uploads'
 RESULT_FOLDER = 'static/results'
+os.makedirs('static/uploads', exist_ok=True)
+os.makedirs('static/results', exist_ok=True)
 
 mask_model = load_model('models/mask_model.h5')
 emotion_model = load_model('models/emotion_model.h5')
