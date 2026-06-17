@@ -83,7 +83,7 @@ def generate_frames():
 
         if frame_count % 5 == 0:
             faces = face_cascade.detectMultiScale(
-                gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60)
+                gray, scaleFactor=1.05, minNeighbors=3, minSize=(30, 30)
             )
             last_faces = faces if len(faces) else []
             last_results = []
@@ -159,7 +159,7 @@ def predict():
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(
-        gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60)
+        gray, scaleFactor=1.05, minNeighbors=3, minSize=(30, 30)
     )
 
     results = []
