@@ -24,8 +24,13 @@ RESULT_FOLDER = 'static/results'
 os.makedirs('static/uploads', exist_ok=True)
 os.makedirs('static/results', exist_ok=True)
 
-mask_model = load_model('models/mask_model.h5')
-emotion_model = load_model('models/emotion_model.h5')
+import gc
+import tensorflow as tf
+tf.config.set_visible_devices([], 'GPU')
+
+mask_model = load_model('models/mask_model.h5', compile=False)
+emotion_model = load_model('models/emotion_model.h5', compile=False)
+gc.collect()
 
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
