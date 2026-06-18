@@ -7,6 +7,15 @@ import threading
 import base64
 from datetime import datetime
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+tf.config.set_visible_devices([], 'GPU')
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+
 app = Flask(__name__)
 app.secret_key = 'face_mask_emotion_secret_key'
 
